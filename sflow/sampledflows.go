@@ -12,11 +12,15 @@ type SampledEthernet struct {
 	Type   uint32
 }
 
-func (se *SampledEthernet) Parse(data []byte) {
+func (se *SampledEthernet) Parse(data []byte) error {
+	if len(data) < 20 {
+		return ErrTooShort
+	}
 	se.Length = binary.BigEndian.Uint32(data[0:4])
 	copy(se.SrcMac[:], data[4:10])
 	copy(se.DstMac[:], data[10:16])
 	se.Type = binary.BigEndian.Uint32(data[16:20])
+	return nil
 }
 
 func (se *SampledEthernet) FlowType() uint32 {
@@ -28,9 +32,10 @@ type SampledUnknown struct {
 	Data []byte
 }
 
-func (u *SampledUnknown) Parse(data []byte) {
+func (u *SampledUnknown) Parse(data []byte) error {
 	u.Data = make([]byte, len(data))
 	copy(u.Data, data)
+	return nil
 }
 
 func (u *SampledUnknown) FlowType() uint32 {
@@ -48,7 +53,10 @@ type SampledIPV4 struct {
 	ToS      uint32
 }
 
-func (si *SampledIPV4) Parse(data []byte) {
+func (si *SampledIPV4) Parse(data []byte) error {
+	if len(data) < 32 {
+		return ErrTooShort
+	}
 	si.Length = binary.BigEndian.Uint32(data[0:4])
 	si.Protocol = binary.BigEndian.Uint32(data[4:8])
 	copy(si.SrcIP[:], data[8:12])
@@ -57,21 +65,32 @@ func (si *SampledIPV4) Parse(data []byte) {
 	si.DstPort = binary.BigEndian.Uint32(data[20:24])
 	si.TCPFlags = binary.BigEndian.Uint32(data[24:28])
 	si.ToS = binary.BigEndian.Uint32(data[28:32])
+	return nil
 }
 
 func (u *SampledIPV4) FlowType() uint32 {
 	return SampledIPV4Type
 }
 
-func (si *SampledIPV4) ParseFromIPHeader(data []byte) {
+func (si *SampledIPV4) ParseFromIPHeader(data []byte) error {
+	if len(data) < 20 {
+		return ErrTooShort
+	}
 	copy(si.SrcIP[:], data[12:16])
 	copy(si.DstIP[:], data[16:20])
 	si.Protocol = uint32(data[9])
 	if si.Protocol == 6 || si.Protocol == 17 {
-		length := int((data[0] & 0xF) * 4)
-		si.SrcPort = uint32(binary.BigEndian.Uint16(data[length : length+2]))
-		si.DstPort = uint32(binary.BigEndian.Uint16(data[length+2 : length+4]))
+		ihl := int((data[0] & 0xF) * 4)
+		if ihl < 20 {
+			return ErrOutOfBounds
+		}
+		if len(data) < ihl+4 {
+			return ErrOutOfBounds
+		}
+		si.SrcPort = uint32(binary.BigEndian.Uint16(data[ihl : ihl+2]))
+		si.DstPort = uint32(binary.BigEndian.Uint16(data[ihl+2 : ihl+4]))
 	}
+	return nil
 }
 
 type SampledIPV6 struct {
@@ -85,7 +104,10 @@ type SampledIPV6 struct {
 	ToS      uint32
 }
 
-func (si *SampledIPV6) Parse(data []byte) {
+func (si *SampledIPV6) Parse(data []byte) error {
+	if len(data) < 56 {
+		return ErrTooShort
+	}
 	si.Length = binary.BigEndian.Uint32(data[0:4])
 	si.Protocol = binary.BigEndian.Uint32(data[4:8])
 	copy(si.SrcIP[:], data[8:24])
@@ -94,6 +116,7 @@ func (si *SampledIPV6) Parse(data []byte) {
 	si.DstPort = binary.BigEndian.Uint32(data[44:48])
 	si.TCPFlags = binary.BigEndian.Uint32(data[48:52])
 	si.ToS = binary.BigEndian.Uint32(data[52:56])
+	return nil
 }
 
 func (u *SampledIPV6) FlowType() uint32 {

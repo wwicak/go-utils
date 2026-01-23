@@ -87,11 +87,15 @@ func bytesHandlerForSamplesHandler(h SamplesHandler) bytesdispatcher.BytesHandle
 	return bytesdispatcher.BytesHandlerFunc(
 		func(buffer []byte) {
 			head := sflow.Header{}
-			next := head.Parse(buffer)
-			samples, err := head.ParseSamples(next)
-			if err == nil {
-				h.HandleSamples(&head, samples)
+			next, err := head.Parse(buffer)
+			if err != nil {
+				return
 			}
+			samples, err := head.ParseSamples(next)
+			if err != nil {
+				return
+			}
+			h.HandleSamples(&head, samples)
 
 		},
 	)

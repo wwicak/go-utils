@@ -34,7 +34,10 @@ func (ic *IfCounter) CounterType() uint32 {
 	return IfCountersType
 }
 
-func (ic *IfCounter) Parse(data []byte) {
+func (ic *IfCounter) Parse(data []byte) error {
+	if len(data) < 88 {
+		return ErrTooShort
+	}
 	ic.Index = binary.BigEndian.Uint32(data[0:4])
 	ic.Type = binary.BigEndian.Uint32(data[4:8])
 	ic.Speed = binary.BigEndian.Uint64(data[8:16])
@@ -54,4 +57,5 @@ func (ic *IfCounter) Parse(data []byte) {
 	ic.OutDiscards = binary.BigEndian.Uint32(data[76:80])
 	ic.OutErrors = binary.BigEndian.Uint32(data[80:84])
 	ic.PromiscuousMode = binary.BigEndian.Uint32(data[84:88])
+	return nil
 }

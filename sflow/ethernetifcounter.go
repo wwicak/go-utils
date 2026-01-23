@@ -24,7 +24,10 @@ func (eic *EthernetCounter) CounterType() uint32 {
 	return EthernetCountersType
 }
 
-func (eic *EthernetCounter) Parse(data []byte) {
+func (eic *EthernetCounter) Parse(data []byte) error {
+	if len(data) < 52 {
+		return ErrTooShort
+	}
 	eic.AlignmentErrors = binary.BigEndian.Uint32(data[0:4])
 	eic.FCSErrors = binary.BigEndian.Uint32(data[4:8])
 	eic.SingleCollisionFrames = binary.BigEndian.Uint32(data[8:12])
@@ -38,4 +41,5 @@ func (eic *EthernetCounter) Parse(data []byte) {
 	eic.FrameTooLongs = binary.BigEndian.Uint32(data[40:44])
 	eic.InternalMacReceiveErrors = binary.BigEndian.Uint32(data[44:48])
 	eic.SymbolErrors = binary.BigEndian.Uint32(data[48:52])
+	return nil
 }

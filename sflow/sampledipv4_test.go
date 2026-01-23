@@ -14,7 +14,9 @@ func TestParseFromEthernetHeader(t *testing.T) {
 	}
 
 	sampledIPv4 := &SampledIPV4{}
-	sampledIPv4.ParseFromIPHeader(raw_bytes[14:])
+	if err := sampledIPv4.ParseFromIPHeader(raw_bytes[14:]); err != nil {
+		t.Fatal(err)
+	}
 	if diff := deep.Equal(
 		sampledIPv4,
 		&SampledIPV4{

@@ -14,7 +14,10 @@ func TestHeader(t *testing.T) {
 	}
 
 	h := Header{}
-	next := h.Parse(raw_bytes)
+	next, err := h.Parse(raw_bytes)
+	if err != nil {
+		t.Fatal(err)
+	}
 	CheckUint32(t, "h.Version", h.Version, 5)
 	CheckUint32(t, "h.AddressType", h.AddressType, 1)
 	CheckUint32(t, "h.SubAgentID", h.SubAgentID, 1)
@@ -23,19 +26,30 @@ func TestHeader(t *testing.T) {
 	CheckUint32(t, "h.NumSamples", h.NumSamples, 1)
 
 	df := DataFormat{}
-	next = df.Parse(next)
+	next, err = df.Parse(next)
+	if err != nil {
+		t.Fatal(err)
+	}
 	CheckUint32(t, "df.Format", df.Format, 2)
 	CheckUint32(t, "df.Length", df.Length, 108)
 	cs := CountersSample{}
-	next = cs.Parse(next)
+	next, err = cs.Parse(next)
+	if err != nil {
+		t.Fatal(err)
+	}
 	CheckUint32(t, "cs.SequenceNumber", cs.SequenceNumber, 8485)
 	CheckUint32(t, "cs.SourceId", cs.SourceId, 1036)
 	CheckUint32(t, "cs.NumSamples", cs.NumSamples, 1)
-	next = df.Parse(next)
+	next, err = df.Parse(next)
+	if err != nil {
+		t.Fatal(err)
+	}
 	CheckUint32(t, "df.Format", df.Format, 1)
 	CheckUint32(t, "df.Length", df.Length, 88)
 	ic := IfCounter{}
-	ic.Parse(next)
+	if err := ic.Parse(next); err != nil {
+		t.Fatal(err)
+	}
 	CheckUint32(t, "ic.Index", ic.Index, 1036)
 	CheckUint32(t, "ic.Type", ic.Type, 6)
 	CheckUint64(t, "ic.Speed", ic.Speed, 100000000)
@@ -64,7 +78,10 @@ func TestMultiSamples(t *testing.T) {
 		t.Fatal(err)
 	}
 	h := Header{}
-	next := h.Parse(raw_bytes)
+	next, err := h.Parse(raw_bytes)
+	if err != nil {
+		t.Fatal(err)
+	}
 	_ = next
 	CheckUint32(t, "h.Version", h.Version, 5)
 	CheckUint32(t, "h.AddressType", h.AddressType, 1)

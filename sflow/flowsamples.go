@@ -19,7 +19,10 @@ func (fs *FlowSample) SampleType() uint32 {
 	return FlowSampleType
 }
 
-func (fs *FlowSample) Parse(data []byte) {
+func (fs *FlowSample) Parse(data []byte) error {
+	if len(data) < 32 {
+		return ErrTooShort
+	}
 	fs.SequenceNumber = binary.BigEndian.Uint32(data[0:4])
 	fs.SourceId = binary.BigEndian.Uint32(data[4:8])
 	fs.SamplingRate = binary.BigEndian.Uint32(data[8:12])
@@ -30,12 +33,20 @@ func (fs *FlowSample) Parse(data []byte) {
 	records := binary.BigEndian.Uint32(data[28:32])
 	data = data[32:]
 	var flow Flow
+	var err error
 	for i := uint32(0); i < records; i++ {
 		df := DataFormat{}
-		data = df.Parse(data)
-		flow, data = df.ParseFlow(data)
+		data, err = df.Parse(data)
+		if err != nil {
+			return err
+		}
+		flow, data, err = df.ParseFlow(data)
+		if err != nil {
+			return err
+		}
 		fs.Records = append(fs.Records, flow)
 	}
+	return nil
 }
 
 type DataSourceExpanded struct {
@@ -66,7 +77,10 @@ func (fs *FlowSampleExpanded) SampleType() uint32 {
 	return FlowSampleExpandedType
 }
 
-func (fs *FlowSampleExpanded) Parse(data []byte) {
+func (fs *FlowSampleExpanded) Parse(data []byte) error {
+	if len(data) < 44 {
+		return ErrTooShort
+	}
 	fs.SequenceNumber = binary.BigEndian.Uint32(data[0:4])
 	fs.SourceId.Type = binary.BigEndian.Uint32(data[4:8])
 	fs.SourceId.Index = binary.BigEndian.Uint32(data[8:12])
@@ -80,10 +94,18 @@ func (fs *FlowSampleExpanded) Parse(data []byte) {
 	records := binary.BigEndian.Uint32(data[40:44])
 	data = data[44:]
 	var flow Flow
+	var err error
 	for i := uint32(0); i < records; i++ {
 		df := DataFormat{}
-		data = df.Parse(data)
-		flow, data = df.ParseFlow(data)
+		data, err = df.Parse(data)
+		if err != nil {
+			return err
+		}
+		flow, data, err = df.ParseFlow(data)
+		if err != nil {
+			return err
+		}
 		fs.Records = append(fs.Records, flow)
 	}
+	return nil
 }

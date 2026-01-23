@@ -25,7 +25,10 @@ type TokenringCounters struct {
 	StatsFreqErrors         uint32
 }
 
-func (tc *TokenringCounters) Parse(data []byte) {
+func (tc *TokenringCounters) Parse(data []byte) error {
+	if len(data) < 72 {
+		return ErrTooShort
+	}
 	tc.StatsLineErrors = binary.BigEndian.Uint32(data[0:4])
 	tc.StatsBurstErrors = binary.BigEndian.Uint32(data[4:8])
 	tc.StatsACErrors = binary.BigEndian.Uint32(data[8:12])
@@ -44,6 +47,7 @@ func (tc *TokenringCounters) Parse(data []byte) {
 	tc.StatsRemoves = binary.BigEndian.Uint32(data[60:64])
 	tc.StatsSingles = binary.BigEndian.Uint32(data[64:68])
 	tc.StatsFreqErrors = binary.BigEndian.Uint32(data[68:72])
+	return nil
 }
 
 func (tc *TokenringCounters) CounterType() uint32 {
@@ -71,7 +75,10 @@ func (*VGCounters) CounterType() uint32 {
 	return 4
 }
 
-func (vc *VGCounters) Parse(data []byte) {
+func (vc *VGCounters) Parse(data []byte) error {
+	if len(data) < 80 {
+		return ErrTooShort
+	}
 	vc.InHighPriorityFrames = binary.BigEndian.Uint32(data[0:4])
 	vc.InHighPriorityOctets = binary.BigEndian.Uint64(data[4:12])
 	vc.InNormPriorityFrames = binary.BigEndian.Uint32(data[12:16])
@@ -86,6 +93,7 @@ func (vc *VGCounters) Parse(data []byte) {
 	vc.HCInHighPriorityOctets = binary.BigEndian.Uint64(data[56:64])
 	vc.HCInNormPriorityOctets = binary.BigEndian.Uint64(data[64:72])
 	vc.HCOutHighPriorityOctets = binary.BigEndian.Uint64(data[72:80])
+	return nil
 }
 
 type CounterUnknown struct {
@@ -93,9 +101,10 @@ type CounterUnknown struct {
 	Data []byte
 }
 
-func (u *CounterUnknown) Parse(data []byte) {
+func (u *CounterUnknown) Parse(data []byte) error {
 	u.Data = make([]byte, len(data))
 	copy(u.Data, data)
+	return nil
 }
 
 func (u *CounterUnknown) CounterType() uint32 {
@@ -115,13 +124,17 @@ func (*VlanCounters) CounterType() uint32 {
 	return VlanCountersType
 }
 
-func (vc *VlanCounters) Parse(data []byte) {
+func (vc *VlanCounters) Parse(data []byte) error {
+	if len(data) < 28 {
+		return ErrTooShort
+	}
 	vc.VLANID = binary.BigEndian.Uint32(data[0:4])
 	vc.Octets = binary.BigEndian.Uint64(data[4:12])
 	vc.UcastPkts = binary.BigEndian.Uint32(data[12:16])
 	vc.MulticastPkts = binary.BigEndian.Uint32(data[16:20])
 	vc.BroadcastPkts = binary.BigEndian.Uint32(data[20:24])
 	vc.Discards = binary.BigEndian.Uint32(data[24:28])
+	return nil
 }
 
 type Processor struct {
@@ -136,10 +149,14 @@ func (*Processor) CounterType() uint32 {
 	return ProcessorType
 }
 
-func (p *Processor) Parse(data []byte) {
+func (p *Processor) Parse(data []byte) error {
+	if len(data) < 28 {
+		return ErrTooShort
+	}
 	p.CPU_5s = binary.BigEndian.Uint32(data[0:4])
 	p.CPU_1m = binary.BigEndian.Uint32(data[4:8])
 	p.CPU_5m = binary.BigEndian.Uint32(data[8:12])
 	p.TotalMemory = binary.BigEndian.Uint64(data[12:20])
 	p.FreeMemory = binary.BigEndian.Uint64(data[20:28])
+	return nil
 }
