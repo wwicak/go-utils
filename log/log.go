@@ -219,6 +219,14 @@ func LoggerNewRequest(ctx context.Context) context.Context {
 	return context.WithValue(ctx, requestUuidCtxKey, u.String())
 }
 
+// GetRequestUuid returns the request UUID from the context, or empty string if not set.
+func GetRequestUuid(ctx context.Context) string {
+	if uid, ok := ctx.Value(requestUuidCtxKey).(string); ok {
+		return uid
+	}
+	return ""
+}
+
 // AddToLogContext adds key-value pairs to the context's additional log fields.
 // Args should be tuples: "key1", "val1", "key2", "val2".
 func AddToLogContext(ctx context.Context, args ...any) context.Context {
