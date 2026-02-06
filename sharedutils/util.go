@@ -20,7 +20,6 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/cevaris/ordered_map"
 	"github.com/kr/pretty"
 )
 
@@ -90,33 +89,6 @@ func LcFirst(str string) string {
 	}
 
 	return string(unicode.ToLower(r)) + str[size:]
-}
-
-// TODO: handle odd number of elements in args
-func TupleToOrderedMap(args []interface{}) (*ordered_map.OrderedMap, error) {
-	if len(args)%2 != 0 {
-		return nil, errors.New("Odd number of elements in args for TupleToOrderedMap")
-	}
-	m := ordered_map.NewOrderedMap()
-	var key interface{}
-	for i, o := range args {
-		if i%2 == 1 {
-			m.Set(key, o)
-		} else {
-			key = o
-		}
-	}
-	return m, nil
-}
-
-func CopyOrderedMap(m *ordered_map.OrderedMap) *ordered_map.OrderedMap {
-	newMap := ordered_map.NewOrderedMap()
-
-	iter := m.IterFunc()
-	for kv, ok := iter(); ok; kv, ok = iter() {
-		newMap.Set(kv.Key, kv.Value)
-	}
-	return newMap
 }
 
 // TODO: handle odd number of elements in args

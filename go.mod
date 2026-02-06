@@ -1,19 +1,19 @@
-module github.com/inverse-inc/go-utils
+module github.com/wwicak/go-utils
 
-go 1.15
+go 1.22
 
 require (
-	github.com/cevaris/ordered_map v0.0.0-20171019141434-01ce2b16ad4f
-	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/go-test/deep v1.0.7
-	github.com/google/uuid v1.1.1
-	github.com/inconshreveable/log15 v0.0.0-20171019012758-0decfc6c20d9
-	github.com/kr/pretty v0.2.1
-	github.com/mattn/go-colorable v0.1.8 // indirect
-	golang.org/x/net v0.0.0-20210415231046-e915ea6b2b7d
+	github.com/google/uuid v1.6.0
+	github.com/kr/pretty v0.3.1
+	go.uber.org/zap v1.27.1
+	golang.org/x/net v0.24.0
 	gopkg.in/alexcesaro/statsd.v2 v2.0.0-20160320182110-7fea3f0d2fab
 )
 
-replace github.com/inverse-inc => ../
-
-replace github.com/inverse-inc/go-utils => ./
+require (
+	github.com/kr/text v0.2.0 // indirect
+	github.com/rogpeppe/go-internal v1.9.0 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
+)

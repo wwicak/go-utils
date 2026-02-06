@@ -2,7 +2,7 @@ package sflow
 
 import (
 	"encoding/binary"
-	"github.com/inverse-inc/go-utils/mac"
+	"github.com/wwicak/go-utils/mac"
 )
 
 type SampledEthernet struct {

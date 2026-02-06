@@ -1,13 +1,32 @@
-// +build windows
+//go:build windows
 
 package log
 
 import (
 	"os"
 
-	"github.com/inconshreveable/log15"
+	"github.com/wwicak/go-utils/sharedutils"
+	"go.uber.org/zap/zapcore"
 )
 
-func getLogBackend() log15.Handler {
-	return log15.StreamHandler(os.Stdout, log15.LogfmtFormat())
+func newEncoder(format string) zapcore.Encoder {
+	cfg := zapcore.EncoderConfig{
+		TimeKey:        "ts",
+		LevelKey:       "level",
+		MessageKey:     "msg",
+		EncodeLevel:    zapcore.LowercaseLevelEncoder,
+		EncodeTime:     zapcore.ISO8601TimeEncoder,
+		EncodeDuration: zapcore.StringDurationEncoder,
+	}
+	if format == "json" {
+		return zapcore.NewJSONEncoder(cfg)
+	}
+	cfg.EncodeLevel = zapcore.CapitalLevelEncoder
+	return zapcore.NewConsoleEncoder(cfg)
+}
+
+func getLogBackend() zapcore.Core {
+	format := sharedutils.EnvOrDefault("LOG_FORMAT", "text")
+	encoder := newEncoder(format)
+	return zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), zapcore.DebugLevel)
 }

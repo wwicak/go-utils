@@ -2,9 +2,9 @@ package processor
 
 import (
 	"errors"
-	"github.com/inverse-inc/go-utils/bytearraypool"
-	"github.com/inverse-inc/go-utils/bytesdispatcher"
-	"github.com/inverse-inc/go-utils/sflow"
+	"github.com/wwicak/go-utils/bytearraypool"
+	"github.com/wwicak/go-utils/bytesdispatcher"
+	"github.com/wwicak/go-utils/sflow"
 	"net"
 	"runtime"
 	"strings"

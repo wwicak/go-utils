@@ -2,8 +2,8 @@ package processor_test
 
 import (
 	"fmt"
-	"github.com/inverse-inc/go-utils/sflow"
-	"github.com/inverse-inc/go-utils/sflow/processor"
+	"github.com/wwicak/go-utils/sflow"
+	"github.com/wwicak/go-utils/sflow/processor"
 	"net"
 	"os"
 	"os/signal"
